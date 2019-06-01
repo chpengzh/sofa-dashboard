@@ -73,9 +73,6 @@ export default {
   // build path
   outputPath: '/home/admin/release/run/target/static',
 
-  externals: {
-    '@antv/data-set': 'DataSet',
-  },
   proxy: {
     '/api': {
       target: 'http://localhost:8099'

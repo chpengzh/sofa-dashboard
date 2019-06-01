@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
 import {Card, Table, Tabs,Collapse} from 'antd';
+// eslint-disable
+import { DataSet } from '@antv/data-set'
 
 import {
     Chart,
