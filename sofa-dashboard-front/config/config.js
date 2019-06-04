@@ -71,7 +71,7 @@ export default {
   },
 
   // build path
-  outputPath: 'target',
+  outputPath: 'target/dist',
 
   proxy: {
     '/api': {
