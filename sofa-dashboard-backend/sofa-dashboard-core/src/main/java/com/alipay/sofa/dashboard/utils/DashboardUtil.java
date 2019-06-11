@@ -17,11 +17,9 @@
 package com.alipay.sofa.dashboard.utils;
 
 import com.alipay.sofa.dashboard.constants.SofaDashboardConstants;
-import org.springframework.util.StringUtils;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author: guolei.sgl (guolei.sgl@antfin.com) 19/1/10 下午5:02
@@ -33,62 +31,18 @@ public class DashboardUtil {
      * 理论上 f 之后的英文字符均可，作为分隔符；不选择特殊字符原因在于，如何 # 等在作为请求参数时，会被浏览器处理为 location 的 hash 值
      * 另外对于考虑到生成的 code 码长度问题，仅使用一位字符
      */
-    public static final String            KEY        = "g";
-
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+    public static final String KEY = "g";
 
     public static Date now() {
         return new Date(System.currentTimeMillis());
     }
 
     public static String getCurrentDataKey() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
         return dateFormat.format(now());
     }
 
     /**
-     * Extract value from map ,if null return empty String
-     *
-     * @param map
-     * @param key
-     * @return
-     */
-    public static String getEmptyStringIfNull(Map map, String key) {
-        if (map == null || map.size() <= 0) {
-            return SofaDashboardConstants.EMPTY;
-        }
-        Object valueObject = map.get(key);
-        String valueStr;
-        try {
-            valueStr = (String) valueObject;
-        } catch (Throwable throwable) {
-            return SofaDashboardConstants.EMPTY;
-        }
-        return StringUtils.isEmpty(valueStr) ? SofaDashboardConstants.EMPTY : valueStr;
-    }
-
-    /**
-     * Extract value from map ,if null return defaultValue
-     *
-     * @param map
-     * @param key
-     * @return
-     */
-    public static int getDefaultIfNull(Map map, String key, int defaultValue) {
-        if (map == null || map.size() <= 0) {
-            return defaultValue;
-        }
-        Object valueObject = map.get(key);
-        int valueStr;
-        try {
-            valueStr = (Integer) valueObject;
-        } catch (Throwable throwable) {
-            return defaultValue;
-        }
-        return valueStr;
-    }
-
-    /**
-     *
      * 出于安全考虑，ip:port 不适用直接暴露到浏览器地址中作为参数存在，因此对 ip+port 进行一次编码，
      * 产生一个唯一的序列号，应用实例的 ip 和 port 可以唯一确定当前应用实例。
      *
@@ -128,12 +82,4 @@ public class DashboardUtil {
         return sb.toString();
     }
 
-    public static String convertToString(List<String> source) {
-        if (source == null || source.isEmpty()) {
-            return SofaDashboardConstants.EMPTY;
-        }
-        StringBuilder sb = new StringBuilder();
-        source.forEach((item) -> sb.append(item).append(","));
-        return sb.substring(0, sb.toString().length() - 1);
-    }
 }
