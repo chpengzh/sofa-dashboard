@@ -72,7 +72,7 @@ public class AppDynamicCacheManager {
             appInstances.forEach((app) -> {
                 fetchDetailsThread(app);
                 fetchMemoryHeap(app);
-                doCalculateMemoryNonHeap(app);
+                fetchMemoryNonHeap(app);
             });
         });
     }
@@ -150,7 +150,7 @@ public class AppDynamicCacheManager {
      *
      * @param app application instance
      */
-    private void doCalculateMemoryNonHeap(Application app) {
+    private void fetchMemoryNonHeap(Application app) {
         String appId = DashboardUtil.simpleEncode(app.getHostName(), app.getPort());
         MemoryNonHeapInfo info = client.getNonHeapMemory(convertToHost(app));
         cacheNonHeapMemory.compute(appId, (key, value) -> {

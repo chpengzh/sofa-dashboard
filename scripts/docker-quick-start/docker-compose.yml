@@ -7,11 +7,28 @@ services:
     depends_on:
       - sofa-dashboard-db
       - sofa-dashboard-zk
+      - apollo-quick-start
     ports:
       - "8080:8080"
     links:
       - sofa-dashboard-zk
       - sofa-dashboard-db
+      - apollo-quick-start
+
+  apollo-quick-start:
+    image: nobodyiam/apollo-quick-start
+    container_name: apollo-quick-start
+    depends_on:
+      - sofa-dashboard-db
+    ports:
+      - "18080:8080"
+      - "18070:8070"
+    volumes:
+      - ./apollo:/sofa-apollo-patch
+    links:
+      - sofa-dashboard-db
+    command:
+      /sofa-apollo-patch/apollo-sofa-dashboard-entrypoint.sh
 
   sofa-dashboard-zk:
     image: zookeeper:3.4.14
@@ -33,7 +50,7 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - ../../sql:/docker-entrypoint-initdb.d
+      - ../sql:/docker-entrypoint-initdb.d
     volumes_from:
       - sofa-dashboard-dbdata
 

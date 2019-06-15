@@ -1,0 +1,197 @@
+#
+# Zookeeper
+#
+# Please Visit reference below for more detail:
+# - Running ZooKeeper, A Distributed System Coordinator
+# - https://kubernetes.io/docs/tutorials/stateful-application/zookeeper/
+#
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: zk-config
+data:
+  ensemble: "zk-0"
+  jvm.heap: "1G"
+  tick: "2000"
+  init: "10"
+  sync: "5"
+  client.cnxns: "60"
+  snap.retain: "3"
+  purge.interval: "1"
+  session.timeout.max: "40000"
+  session.timeout.min: "4000"
+  log.level: "INFO"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zk-hs
+  labels:
+    app: zk
+spec:
+  ports:
+    - port: 2888
+      name: server
+    - port: 3888
+      name: leader-election
+  clusterIP: None
+  selector:
+    app: zk
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zk-cs
+  labels:
+    app: zk
+spec:
+  ports:
+    - port: 2181
+      name: client
+  selector:
+    app: zk
+---
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: zk-pdb
+spec:
+  selector:
+    matchLabels:
+      app: zk
+  maxUnavailable: 1
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: zk
+spec:
+  selector:
+    matchLabels:
+      app: zk
+  serviceName: zk-hs
+  replicas: 3
+  updateStrategy:
+    type: RollingUpdate
+  podManagementPolicy: OrderedReady
+  template:
+    metadata:
+      labels:
+        app: zk
+    spec:
+      containers:
+        - name: kubernetes-zookeeper
+          image: "k8s.gcr.io/kubernetes-zookeeper:1.0-3.4.10"
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "0.5"
+          ports:
+            - containerPort: 2181
+              name: client
+            - containerPort: 2888
+              name: server
+            - containerPort: 3888
+              name: leader-election
+          env:
+            - name: JVM_HEAP
+              valueFrom:
+                configMapKeyRef:
+                  name: zk-config
+                  key: jvm.heap
+            - name: SYNC_LIMIT
+              valueFrom:
+                configMapKeyRef:
+                  name: zk-config
+                  key: sync
+            - name: INIT_LIMIT
+              valueFrom:
+                configMapKeyRef:
+                  name: zk-config
+                  key: sync
+            - name: TICK_TIMEOUT
+              valueFrom:
+                configMapKeyRef:
+                  name: zk-config
+                  key: tick
+            - name: CLIENT_CNXNS
+              valueFrom:
+                configMapKeyRef:
+                  name: zk-config
+                  key: client.cnxns
+            - name: SNAP_RETAIN
+              valueFrom:
+                configMapKeyRef:
+                  name: zk-config
+                  key: snap.retain
+            - name: PURGE_INTERVAL
+              valueFrom:
+                configMapKeyRef:
+                  name: zk-config
+                  key: purge.interval
+            - name: SESSION_TIMEOUT_MAX
+              valueFrom:
+                configMapKeyRef:
+                  name: zk-config
+                  key: session.timeout.max
+            - name: SESSION_TIMEOUT_MIN
+              valueFrom:
+                configMapKeyRef:
+                  name: zk-config
+                  key: session.timeout.min
+            - name: LOG_LEVEL
+              valueFrom:
+                configMapKeyRef:
+                  name: zk-config
+                  key: log.level
+          command:
+            - sh
+            - -c
+            - "start-zookeeper \
+          --servers=3 \
+          --data_dir=/var/lib/zookeeper/data \
+          --data_log_dir=/var/lib/zookeeper/data/log \
+          --conf_dir=/opt/zookeeper/conf \
+          --client_port=2181 \
+          --election_port=3888 \
+          --server_port=2888 \
+          --tick_time=${TICK_TIMEOUT} \
+          --init_limit=${INIT_LIMIT} \
+          --sync_limit=${SYNC_LIMIT} \
+          --heap=${JVM_HEAP} \
+          --max_client_cnxns=${CLIENT_CNXNS} \
+          --snap_retain_count=${SNAP_RETAIN} \
+          --purge_interval=${PURGE_INTERVAL} \
+          --max_session_timeout=${SESSION_TIMEOUT_MAX} \
+          --min_session_timeout=${SESSION_TIMEOUT_MIN} \
+          --log_level=${LOG_LEVEL}"
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - "zookeeper-ready 2181"
+            initialDelaySeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - "zookeeper-ready 2181"
+            initialDelaySeconds: 10
+            timeoutSeconds: 5
+          volumeMounts:
+            - name: datadir
+              mountPath: /var/lib/zookeeper
+      securityContext:
+        runAsUser: 1000
+        fsGroup: 1000
+  volumeClaimTemplates:
+    - metadata:
+        name: datadir
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 2Gi

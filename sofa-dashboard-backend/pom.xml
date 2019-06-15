@@ -17,6 +17,7 @@
         <module>sofa-dashboard-arkmng</module>
         <module>sofa-dashboard-governance</module>
         <module>sofa-dashboard-application</module>
+        <module>sofa-dashboard-account</module>
     </modules>
 
     <properties>
@@ -38,6 +39,11 @@
             <dependency>
                 <groupId>com.alipay.sofa</groupId>
                 <artifactId>sofa-dashboard-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alipay.sofa</groupId>
+                <artifactId>sofa-dashboard-account</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

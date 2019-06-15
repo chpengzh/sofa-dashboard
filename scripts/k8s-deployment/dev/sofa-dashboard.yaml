@@ -1,0 +1,83 @@
+#
+# SOFADashboard
+#
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sofa-dashboard-config
+data:
+  mysql.url: "jdbc:mysql://mysql-service:3306/SofaDashboardDB"
+  mysql.username: "root"
+  mysql.password: "123456"
+  zookeeper.url: "zk-cs:2181"
+---
+apiVersion: apps/v1
+kind: Deployment # for versions before 1.9.0 use apps/v1beta2
+metadata:
+  name: sofa-dashboard
+spec:
+  selector:
+    matchLabels:
+      app: sofa-dashboard
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: sofa-dashboard
+    spec:
+      containers:
+        - name: sofa-dashboard
+          image: 'sofastack/sofa-dashboard-web:1.0.0-SNAPSHOT'
+          resources:
+            requests:
+              memory: '1Gi'
+              cpu: '0.5'
+          env:
+            - name: MYSQL_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: sofa-dashboard-config
+                  key: mysql.url
+            - name: MYSQL_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: sofa-dashboard-config
+                  key: mysql.username
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: sofa-dashboard-config
+                  key: mysql.password
+            - name: ZOOKEEPER_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: sofa-dashboard-config
+                  key: zookeeper.url
+          command:
+            - java
+            - -jar
+            - sofa-dashboard-web-latest.jar
+            - "--server.port=8080"
+            - "--com.alipay.sofa.dashboard.registry=zookeeper://${ZOOKEEPER_URL}"
+            - "--com.alipay.sofa.dashboard.zookeeper.address=${ZOOKEEPER_URL}"
+            - "--spring.datasource.url=${MYSQL_URL}"
+            - "--spring.datasource.username=${MYSQL_USER}"
+            - "--spring.datasource.password=${MYSQL_PASSWORD}"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sofa-dashboard-service
+spec:
+  selector:
+    app: sofa-dashboard
+  ports:
+    - port: 8080
+      name: sofa-dashboard-service
+      targetPort: 8080
+      nodePort: 30000
+  type: NodePort
+
+

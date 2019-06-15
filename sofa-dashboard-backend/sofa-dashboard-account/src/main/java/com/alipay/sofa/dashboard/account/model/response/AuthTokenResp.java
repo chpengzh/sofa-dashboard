@@ -1,0 +1,112 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.alipay.sofa.dashboard.account.model.response;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import java.io.Serializable;
+
+/**
+ * @author chen.pengzhi (chpengzh@foxmail.com)
+ */
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class AuthTokenResp implements Serializable {
+
+    private static final int serialVersionUID = 0x11;
+
+    private int              consumerId;
+    private String           token;
+    private String           expires;
+    private int              id;
+    private boolean          isDeleted;
+    private String           dataChangeCreatedBy;
+    private String           dataChangeCreatedTime;
+    private String           dataChangeLastModifiedBy;
+    private String           dataChangeLastModifiedTime;
+
+    public int getConsumerId() {
+        return consumerId;
+    }
+
+    public void setConsumerId(int consumerId) {
+        this.consumerId = consumerId;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public String getExpires() {
+        return expires;
+    }
+
+    public void setExpires(String expires) {
+        this.expires = expires;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public boolean isIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(boolean isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+
+    public String getDataChangeCreatedBy() {
+        return dataChangeCreatedBy;
+    }
+
+    public void setDataChangeCreatedBy(String dataChangeCreatedBy) {
+        this.dataChangeCreatedBy = dataChangeCreatedBy;
+    }
+
+    public String getDataChangeCreatedTime() {
+        return dataChangeCreatedTime;
+    }
+
+    public void setDataChangeCreatedTime(String dataChangeCreatedTime) {
+        this.dataChangeCreatedTime = dataChangeCreatedTime;
+    }
+
+    public String getDataChangeLastModifiedBy() {
+        return dataChangeLastModifiedBy;
+    }
+
+    public void setDataChangeLastModifiedBy(String dataChangeLastModifiedBy) {
+        this.dataChangeLastModifiedBy = dataChangeLastModifiedBy;
+    }
+
+    public String getDataChangeLastModifiedTime() {
+        return dataChangeLastModifiedTime;
+    }
+
+    public void setDataChangeLastModifiedTime(String dataChangeLastModifiedTime) {
+        this.dataChangeLastModifiedTime = dataChangeLastModifiedTime;
+    }
+}

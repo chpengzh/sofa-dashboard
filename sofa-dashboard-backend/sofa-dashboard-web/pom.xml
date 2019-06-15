@@ -27,6 +27,10 @@
         </dependency>
         <dependency>
             <groupId>com.alipay.sofa</groupId>
+            <artifactId>sofa-dashboard-account</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.alipay.sofa</groupId>
             <artifactId>sofa-dashboard-arkmng</artifactId>
         </dependency>
         <dependency>
