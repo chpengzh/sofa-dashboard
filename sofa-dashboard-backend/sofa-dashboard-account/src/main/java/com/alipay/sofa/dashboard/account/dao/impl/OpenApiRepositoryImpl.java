@@ -16,20 +16,17 @@
  */
 package com.alipay.sofa.dashboard.account.dao.impl;
 
-import com.alipay.sofa.dashboard.account.dao.admin.OpenApiRepository;
+import com.alipay.sofa.dashboard.account.dao.api.OpenApiRepository;
+import com.alipay.sofa.dashboard.account.dao.api.SessionRepository;
 import com.alipay.sofa.dashboard.account.model.request.CreateSessionReq;
 import com.alipay.sofa.dashboard.account.model.response.AuthTokenResp;
 import com.alipay.sofa.dashboard.utils.Dict;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriTemplate;
 
 import java.net.HttpCookie;
@@ -43,26 +40,33 @@ import java.util.Optional;
 @Repository
 public class OpenApiRepositoryImpl extends ApolloRepositoryBase implements OpenApiRepository {
 
+    @Autowired
+    private SessionRepository sessionRepo;
+
     @Nullable
     @Override
-    public String getAuthTokenByAppId(@NonNull String sessionId, @NonNull String appId) {
+    public String getAuthTokenByAppId(@NonNull String appId) {
         URI uri = new UriTemplate(portalURL + "/consumers/by-appId?appId={appId}").expand(Dict.set(
             "appId", appId));
         ResponseEntity<AuthTokenResp> resp = template
             .exchange(
                 RequestEntity.get(uri)
-                    .header("Cookie", new HttpCookie(COOKIE_SESSION_KEY, sessionId).toString())
+                    .header("Cookie",
+                        new HttpCookie(COOKIE_SESSION_KEY, sessionRepo.currentSessionId())
+                            .toString())
                     .build(), AuthTokenResp.class);
         return Optional.ofNullable(resp.getBody()).orElse(new AuthTokenResp()).getToken();
     }
 
     @NonNull
     @Override
-    public String createAuthToken(@NonNull String sessionId, @NonNull CreateSessionReq req) {
+    public String createAuthToken(@NonNull CreateSessionReq req) {
         ResponseEntity<AuthTokenResp> resp = template
             .exchange(
                 RequestEntity.post(URI.create(portalURL + "/consumers"))
-                    .header("Cookie", new HttpCookie(COOKIE_SESSION_KEY, sessionId).toString())
+                    .header("Cookie",
+                        new HttpCookie(COOKIE_SESSION_KEY, sessionRepo.currentSessionId())
+                            .toString())
                     .build(), AuthTokenResp.class);
         String token = Objects.requireNonNull(resp.getBody()).getToken();
         return Objects.requireNonNull(token);

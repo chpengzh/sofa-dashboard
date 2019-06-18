@@ -14,10 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.dashboard.account.dao.admin;
+package com.alipay.sofa.dashboard.account.dao.api;
 
+import com.alipay.sofa.dashboard.account.model.UserRole;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.web.client.RestClientException;
+
+import javax.annotation.security.RolesAllowed;
 
 /**
  * Session repository
@@ -56,6 +60,21 @@ public interface SessionRepository {
      *
      * @param sessionId sessionId, {@link SessionRepository#createSession(String, String)}
      */
+    @RolesAllowed({ UserRole.ADMIN, UserRole.NORMAL })
     void removeSession(String sessionId);
+
+    /**
+     * Get sessionId of current thread context
+     *
+     * @return sessionId
+     */
+    String currentSessionId();
+
+    /**
+     * Update sessionId of current thread context
+     *
+     * @param sessionId session id
+     */
+    void setCurrentSessionId(@Nullable String sessionId);
 
 }

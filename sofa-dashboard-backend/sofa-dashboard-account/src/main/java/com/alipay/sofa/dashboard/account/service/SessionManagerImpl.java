@@ -16,9 +16,11 @@
  */
 package com.alipay.sofa.dashboard.account.service;
 
-import com.alipay.sofa.dashboard.account.dao.admin.SessionRepository;
-import com.alipay.sofa.dashboard.account.dao.admin.UserRepository;
-import com.alipay.sofa.dashboard.model.account.*;
+import com.alipay.sofa.dashboard.account.dao.api.SessionRepository;
+import com.alipay.sofa.dashboard.account.dao.api.UserRepository;
+import com.alipay.sofa.dashboard.model.account.LoginReq;
+import com.alipay.sofa.dashboard.model.account.LoginResp;
+import com.alipay.sofa.dashboard.model.account.UserInfo;
 import com.alipay.sofa.dashboard.spi.SessionManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
@@ -36,21 +38,27 @@ public class SessionManagerImpl implements SessionManager {
     private SessionRepository sessionRepository;
 
     @Autowired
-    private UserRepository    userRepository;
+    private UserRepository userRepository;
 
     @Override
     @NonNull
     public LoginResp login(@NonNull LoginReq loginForm) {
         String sessionId = sessionRepository.createSession(loginForm.getUsername(),
             loginForm.getPassword());
-        String userId = userRepository.myUserId(sessionId);
-        List<UserInfo> userInfo = userRepository.getUsers(sessionId, userId, 1);
-        assert !userInfo.isEmpty();
-        UserInfo myself = userInfo.get(0);
 
-        LoginResp resp = new LoginResp();
-        resp.setSessionId(sessionId);
-        resp.setInfo(myself);
-        return resp;
+        sessionRepository.setCurrentSessionId(sessionId);
+        try {
+            String userId = userRepository.myUserId();
+            List<UserInfo> userInfo = userRepository.getUsers(userId, 1);
+            assert !userInfo.isEmpty();
+            UserInfo myself = userInfo.get(0);
+
+            LoginResp resp = new LoginResp();
+            resp.setSessionId(sessionId);
+            resp.setInfo(myself);
+            return resp;
+        } finally {
+            sessionRepository.setCurrentSessionId(null);
+        }
     }
 }

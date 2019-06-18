@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.dashboard.account.dao.admin;
+package com.alipay.sofa.dashboard.account.dao.api;
 
 import com.alipay.sofa.dashboard.base.AbstractTestBase;
 import org.junit.After;

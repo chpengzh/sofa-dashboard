@@ -16,7 +16,7 @@
  */
 package com.alipay.sofa.dashboard.account.dao.impl;
 
-import com.alipay.sofa.dashboard.account.dao.admin.SessionRepository;
+import com.alipay.sofa.dashboard.account.dao.api.SessionRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
@@ -37,6 +37,8 @@ import java.util.Objects;
 @Repository
 public class SessionRepositoryImpl extends ApolloRepositoryBase implements SessionRepository {
 
+    private final ThreadLocal<String> localSessionRef = new ThreadLocal<>();
+
     @NonNull
     @Override
     public String createSession(@NonNull String username, @NonNull String password) {
@@ -45,13 +47,13 @@ public class SessionRepositoryImpl extends ApolloRepositoryBase implements Sessi
         map.add("password", password);
 
         ResponseEntity<String> loginResp = template.exchange(RequestEntity
-                .post(URI.create(portalURL + "/signin"))
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .body(map), String.class);
+            .post(URI.create(portalURL + "/signin"))
+            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+            .body(map), String.class);
         if (loginResp.getStatusCode() != HttpStatus.FOUND) {
             throw new IllegalArgumentException(
-                    "Illegal signIn http status, expected " + HttpStatus.FOUND.value() +
-                    " found" + loginResp.getStatusCodeValue());
+                "Illegal signIn http status, expected " + HttpStatus.FOUND.value() +
+                " found" + loginResp.getStatusCodeValue());
         }
 
         String resultLocation = loginResp.getHeaders().getFirst("Location");
@@ -60,9 +62,9 @@ public class SessionRepositoryImpl extends ApolloRepositoryBase implements Sessi
             !StringUtils.isEmpty(resultLocation) &&
             !resultLocation.endsWith("#/error")) {
             HttpCookie sessionId = HttpCookie.parse(setCookie).stream()
-                    .filter(it -> Objects.equals(it.getName(), COOKIE_SESSION_KEY))
-                    .findFirst()
-                    .orElse(null);
+                .filter(it -> Objects.equals(it.getName(), COOKIE_SESSION_KEY))
+                .findFirst()
+                .orElse(null);
             if (sessionId != null) {
                 return sessionId.getValue();
             }
@@ -73,5 +75,19 @@ public class SessionRepositoryImpl extends ApolloRepositoryBase implements Sessi
     @Override
     public void removeSession(String sessionId) {
 
+    }
+
+    @Override
+    public String currentSessionId() {
+        return localSessionRef.get();
+    }
+
+    @Override
+    public void setCurrentSessionId(String sessionId) {
+        if (sessionId == null) {
+            localSessionRef.remove();
+        } else {
+            localSessionRef.set(sessionId);
+        }
     }
 }

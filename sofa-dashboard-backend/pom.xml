@@ -28,6 +28,7 @@
         <sofaark.version>0.6.0</sofaark.version>
         <curator.version>2.9.1</curator.version>
         <sofa.common.version>1.0.17</sofa.common.version>
+        <swagger.version>2.2.2</swagger.version>
         <jmockit.version>1.14</jmockit.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <mybatis.spring.boot.version>1.3.2</mybatis.spring.boot.version>
@@ -119,6 +120,18 @@
                 <groupId>com.alipay.sofa.common</groupId>
                 <artifactId>sofa-common-tools</artifactId>
                 <version>${sofa.common.version}</version>
+            </dependency>
+
+            <!-- Swagger Support -->
+            <dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-swagger2</artifactId>
+                <version>${swagger.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-swagger-ui</artifactId>
+                <version>${swagger.version}</version>
             </dependency>
             <!-- test -->
             <dependency>

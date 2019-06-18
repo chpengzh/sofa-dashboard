@@ -18,8 +18,13 @@ package com.alipay.sofa.dashboard.controller;
 
 import com.alipay.sofa.dashboard.model.account.LoginReq;
 import com.alipay.sofa.dashboard.model.account.LoginResp;
+import com.alipay.sofa.dashboard.model.account.UserInfo;
 import com.alipay.sofa.dashboard.spi.SessionManager;
 import com.alipay.sofa.dashboard.utils.Dict;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

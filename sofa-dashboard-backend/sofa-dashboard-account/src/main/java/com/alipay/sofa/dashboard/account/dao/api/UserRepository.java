@@ -14,12 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.dashboard.account.dao.admin;
+package com.alipay.sofa.dashboard.account.dao.api;
 
+import com.alipay.sofa.dashboard.account.model.UserRole;
 import com.alipay.sofa.dashboard.account.model.request.UserInfoReq;
 import com.alipay.sofa.dashboard.model.account.UserInfo;
 import org.springframework.lang.NonNull;
 
+import javax.annotation.security.RolesAllowed;
 import java.util.List;
 
 /**
@@ -32,28 +34,29 @@ public interface UserRepository {
     /**
      * Query user info of current session id
      *
-     * @param sessionId sessionId, {@link SessionRepository#createSession(String, String)}
      * @return current user's info
      */
     @NonNull
-    String myUserId(@NonNull String sessionId);
+    @RolesAllowed({ UserRole.ADMIN, UserRole.NORMAL })
+    String myUserId();
 
     /**
      * Query users keyword and page size
      *
-     * @param sessionId sessionId, {@link SessionRepository#createSession(String, String)}
-     * @param keyword   query keyword
-     * @param limit     query limit
+     * @param keyword query keyword
+     * @param limit   query limit
      * @return user info list
      */
     @NonNull
-    List<UserInfo> getUsers(@NonNull String sessionId, String keyword, int limit);
+    @RolesAllowed({ UserRole.ADMIN })
+    List<UserInfo> getUsers(String keyword, int limit);
 
     /**
      * Create or update a user's information
      *
      * @param req user parameter
      */
-    void createOrUpdateUser(@NonNull String sessionId, @NonNull UserInfoReq req);
+    @RolesAllowed({ UserRole.ADMIN })
+    void createOrUpdateUser(@NonNull UserInfoReq req);
 
 }

@@ -17,10 +17,12 @@
 package com.alipay.sofa.dashboard.account.dao.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.alipay.sofa.dashboard.account.dao.admin.UserRepository;
+import com.alipay.sofa.dashboard.account.dao.api.SessionRepository;
+import com.alipay.sofa.dashboard.account.dao.api.UserRepository;
 import com.alipay.sofa.dashboard.account.model.request.UserInfoReq;
 import com.alipay.sofa.dashboard.model.account.UserInfo;
 import com.alipay.sofa.dashboard.utils.Dict;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
@@ -47,37 +49,45 @@ public class UserRepositoryImpl extends ApolloRepositoryBase implements UserRepo
     private final RestTemplate template = new RestTemplate();
 
     @Value("${apollo.portal.url:http://127.0.0.1:8087}")
-    private String             portalURL;
+    private String portalURL;
+
+    @Autowired
+    private SessionRepository sessionRepo;
 
     @NonNull
     @Override
-    public String myUserId(String sessionId) {
+    public String myUserId() {
         ResponseEntity<UserInfo> resp = template
             .exchange(
                 RequestEntity.get(URI.create(portalURL + "/user"))
-                    .header("Cookie", new HttpCookie(COOKIE_SESSION_KEY, sessionId).toString())
+                    .header("Cookie",
+                        new HttpCookie(COOKIE_SESSION_KEY, sessionRepo.currentSessionId())
+                            .toString())
                     .build(), UserInfo.class);
         UserInfo info = Objects.requireNonNull(resp).getBody();
         return Objects.requireNonNull(info).getUserId();
     }
 
     @Override
-    public List<UserInfo> getUsers(@NonNull String sessionId, String keyword, int limit) {
+    public List<UserInfo> getUsers(String keyword, int limit) {
         URI uri = new UriTemplate(portalURL + "/users?keyword={keyword}&limit={limit}").expand(Dict
             .set("keyword", Optional.ofNullable(keyword).orElse("")).and("limit", limit));
         ResponseEntity<List> resp = template
             .exchange(
                 RequestEntity.get(uri)
-                    .header("Cookie", new HttpCookie(COOKIE_SESSION_KEY, sessionId).toString())
+                    .header("Cookie",
+                        new HttpCookie(COOKIE_SESSION_KEY, sessionRepo.currentSessionId())
+                            .toString())
                     .build(), List.class);
         return JSON.parseArray(JSON.toJSONString(resp.getBody()), UserInfo.class);
     }
 
     @Override
-    public void createOrUpdateUser(@NonNull String sessionId, @NonNull UserInfoReq req) {
+    public void createOrUpdateUser(@NonNull UserInfoReq req) {
         template.exchange(
             RequestEntity.post(URI.create(portalURL + "/users"))
-                .header("Cookie", new HttpCookie(COOKIE_SESSION_KEY, sessionId).toString())
+                .header("Cookie",
+                    new HttpCookie(COOKIE_SESSION_KEY, sessionRepo.currentSessionId()).toString())
                 .body(req), Void.class);
     }
 }

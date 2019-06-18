@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.dashboard.account.dao.admin;
+package com.alipay.sofa.dashboard.account.dao.api;
 
 import com.alibaba.fastjson.JSON;
 import com.alipay.sofa.dashboard.account.model.request.UserInfoReq;
@@ -34,17 +34,17 @@ public class UserRepositoryTest extends ApolloRepositoryTestBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserRepositoryTest.class);
 
     @Autowired
-    private UserRepository      userRepo;
+    private UserRepository userRepo;
 
     @Test
     public void getMyInfoTest() {
-        String id = userRepo.myUserId(sessionId);
+        String id = userRepo.myUserId();
         LOGGER.info("Fetch my id => {}", id);
     }
 
     @Test
     public void getAllUsersInfo() {
-        List<UserInfo> myself = userRepo.getUsers(sessionId, "apollo", 100);
+        List<UserInfo> myself = userRepo.getUsers("apollo", 100);
         LOGGER.info("Fetch my info => {}", JSON.toJSONString(myself));
     }
 
@@ -54,6 +54,6 @@ public class UserRepositoryTest extends ApolloRepositoryTestBase {
         req.setEmail("chpengzh@foxmail.com");
         req.setPassword("123456");
         req.setUsername("chpengzh");
-        userRepo.createOrUpdateUser(sessionId, req);
+        userRepo.createOrUpdateUser(req);
     }
 }

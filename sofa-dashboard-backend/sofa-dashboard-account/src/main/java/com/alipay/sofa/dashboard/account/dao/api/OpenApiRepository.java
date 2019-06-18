@@ -14,12 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.dashboard.account.dao.admin;
+package com.alipay.sofa.dashboard.account.dao.api;
 
 import com.alipay.sofa.dashboard.account.model.request.CreateSessionReq;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.web.client.RestClientException;
+
+import javax.annotation.security.RolesAllowed;
 
 /**
  * OpenApi token repository
@@ -32,24 +34,24 @@ public interface OpenApiRepository {
      * Query the token by a given appId.
      * See <b>/open/manage.html</b> in apollo-portal for more details
      *
-     * @param sessionId sessionId, {@link SessionRepository#createSession(String, String)}
-     * @param appId     appId, which is the unique identity of application, can be given by application.properties
+     * @param appId appId, which is the unique identity of application, can be given by application.properties
      * @return openApi token, return {@code null} if it's not exists
      * @throws RestClientException invoke error
      */
     @Nullable
-    String getAuthTokenByAppId(@NonNull String sessionId, @NonNull String appId);
+    @RolesAllowed("ADMIN")
+    String getAuthTokenByAppId(@NonNull String appId);
 
     /**
      * Create a token by a given appId.
      * See <b>/open/manage.html</b> in apollo-portal for more details
      *
-     * @param sessionId sessionId, {@link SessionRepository#createSession(String, String)}
-     * @param req       create session request
+     * @param req create session request
      * @return openApi token, should not be {@code null}
      * @throws RestClientException invoke error
      */
     @NonNull
-    String createAuthToken(@NonNull String sessionId, @NonNull CreateSessionReq req);
+    @RolesAllowed("ADMIN")
+    String createAuthToken(@NonNull CreateSessionReq req);
 
 }
